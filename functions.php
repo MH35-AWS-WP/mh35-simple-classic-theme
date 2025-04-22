@@ -121,3 +121,16 @@ if ( ! function_exists( 'mh35_simple_classic_theme_enqueue_scripts' ) ) {
     }
 }
 add_action( 'wp_enqueue_scripts', 'mh35_simple_classic_theme_enqueue_scripts' );
+
+if ( ! function_exists( 'mh35_simple_classic_theme_title_separator' ) ) {
+    /**
+     * Override title tag separator
+     * 
+     * @param string $sep Separator
+     * @return string New separator
+     */
+    function mh35_simple_classic_theme_title_separator( $sep ) {
+        return '|';
+    }
+}
+add_filter( 'document_title_separator', 'mh35_simple_classic_theme_title_separator' );
