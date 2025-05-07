@@ -50,6 +50,7 @@ if ( ! function_exists( 'mh35_simple_classic_theme_setup' ) ) {
         ) );
         // Add image sizes
         add_image_size( 'mh35-simple-classic-theme-embed', 200, 200, true );
+        add_image_size( 'mh35-simple-classic-theme-archive', 480, 480, true );
     }
 }
 add_action( 'after_setup_theme', 'mh35_simple_classic_theme_setup' );
@@ -176,3 +177,43 @@ if ( ! function_exists( 'mh35_simple_classic_theme_embed_style' ) ) {
 add_action( 'embed_head', 'mh35_simple_classic_theme_embed_style' );
 remove_action( 'embed_head', 'print_embed_styles' );
 remove_action( 'embed_head', 'wp_enqueue_embed_styles', 9 );
+
+if ( ! function_exists( 'mh35_simple_classic_theme_get_the_content_link' ) ) {
+    function mh35_simple_classic_theme_get_the_content_link( $post = null ) {
+        $original = get_the_content( $post );
+        $content = apply_filters( 'the_content', $original );
+        if ( $content === '' ) {
+            return null;
+        }
+        $html = '<html><head><title>A</title></head><body>' . $content .
+            '</body></html>';
+        $doc = new DOMDocument();
+        if ( $doc->loadHTML( $html ) ) {
+            $tags = $doc->getElementsByTagName( 'a' );
+            foreach ( $tags as $tag ) {
+                $href = $tag->getAttribute( 'href' );
+                if ( $href === '' ) {
+                    continue;
+                }
+                if ( substr( $href, 0, 1 ) === '#' ) {
+                    continue;
+                }
+                return $href;
+            }
+        }
+        if ( filter_var( $content, FILTER_VALIDATE_URL ) !== false ) {
+            return $content;
+        }
+        if ( filter_var( $original, FILTER_VALIDATE_URL ) !== false ) {
+            return $original;
+        }
+        return null;
+    }
+}
+
+if ( ! function_exists( 'mh35_simple_classic_theme_append_page_nav_tag' ) ) {
+    function mh35_simple_classic_theme_append_page_nav_tag( $output ) {
+        return '<nav class="post-paginate-nav">' . $output . '</nav>';
+    }
+}
+add_filter( 'wp_link_pages', 'mh35_simple_classic_theme_append_page_nav_tag' );
